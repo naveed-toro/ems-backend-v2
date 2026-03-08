@@ -28,4 +28,8 @@ public class Employee {
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
+    // کئی ملازمین کی ایک ہی پوزیشن ہو سکتی ہے (Many-To-One Relationship)
+    @ManyToOne
+    @JoinColumn(name = "position_id")
+    private Position position;
 }
