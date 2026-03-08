@@ -24,4 +24,8 @@ public class Employee {
 
     // Soft Delete کے لیے (تاکہ ڈیٹا بیس سے ہمیشہ کے لیے ڈیلیٹ نہ ہو)
     private Boolean isDeleted;
+    // کئی ملازمین ایک ڈیپارٹمنٹ کا حصہ ہیں (Many-To-One Relationship)
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
 }
