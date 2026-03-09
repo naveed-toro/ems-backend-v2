@@ -45,6 +45,8 @@ dependencies {
     implementation 'org.apache.commons:commons-csv:1.10.0'
     // PDF فائل بنانے کے لیے لائبریری (OpenPDF)
     implementation 'com.github.librepdf:openpdf:1.3.30'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 tasks.named('test') {
