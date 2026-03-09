@@ -16,20 +16,34 @@ public class ReportController {
 
     private final ReportService reportService;
 
-    // ملازمین کا ڈیٹا CSV (Excel) میں ڈاؤن لوڈ کرنے کا API
+    // ============== پہلا API: CSV (Excel) ڈاؤن لوڈ کے لیے ==============
     @GetMapping("/employees/csv")
     public ResponseEntity<byte[]> downloadEmployeeCsv() {
-        // سروس سے فائل کا ڈیٹا (bytes) منگوائیں
         byte[] csvData = reportService.generateEmployeeCsvReport();
 
-        // براؤزر کو بتائیں کہ یہ کوئی عام ٹیکسٹ نہیں بلکہ ایک فائل ہے جسے ڈاؤن لوڈ کرنا ہے
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=employees_report.csv");
         headers.setContentType(MediaType.parseMediaType("text/csv"));
 
-        // فائل یوزر کو بھیج دیں
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(csvData);
+    }
+
+    // ============== دوسرا API: PDF ڈاؤن لوڈ کے لیے ==============
+    @GetMapping("/employees/pdf")
+    public ResponseEntity<byte[]> downloadEmployeePdf() {
+        // سروس سے PDF فائل کا ڈیٹا منگوائیں
+        byte[] pdfData = reportService.generateEmployeePdfReport();
+
+        // براؤزر کو بتائیں کہ یہ ایک PDF فائل ہے
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=employees_report.pdf");
+        headers.setContentType(MediaType.APPLICATION_PDF);
+
+        // فائل یوزر کو بھیج دیں
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfData);
     }
 }
