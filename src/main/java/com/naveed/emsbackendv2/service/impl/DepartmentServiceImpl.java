@@ -6,7 +6,7 @@ import com.naveed.emsbackendv2.model.dto.response.DepartmentResponseDto;
 import com.naveed.emsbackendv2.model.entities.Department;
 import com.naveed.emsbackendv2.model.mapper.DepartmentMapper;
 import com.naveed.emsbackendv2.model.repository.DepartmentRepository;
-import com.naveed.emsbackendv2.service.AuditLogService; // 👈 آڈٹ سروس کی امپورٹ
+import com.naveed.emsbackendv2.service.AuditLogService;
 import com.naveed.emsbackendv2.service.DepartmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,7 +21,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository departmentRepository;
     private final DepartmentMapper departmentMapper;
-    private final AuditLogService auditLogService; // 👈 ڈائری منگوا لی
+    private final AuditLogService auditLogService;
 
     @Override
     public DepartmentResponseDto createDepartment(CreateDepartmentDto dto) {
@@ -30,8 +30,8 @@ public class DepartmentServiceImpl implements DepartmentService {
         department.setIsDeleted(false);
         Department savedDepartment = departmentRepository.save(department);
 
-        // 🪄 جادو: نیا ڈیپارٹمنٹ بننے کا ریکارڈ ڈائری میں لکھنا
-        auditLogService.logAction("CREATE", "Department", savedDepartment.getUuid(), "System_User");
+        // ✅ اب صرف 3 چیزیں: ایکشن، اینٹیٹی کا نام، اور اس کی ID
+        auditLogService.logAction("CREATE", "Department", savedDepartment.getUuid());
 
         return departmentMapper.toResponseDto(savedDepartment);
     }
@@ -57,8 +57,8 @@ public class DepartmentServiceImpl implements DepartmentService {
         department.setName(dto.name());
         Department updatedDepartment = departmentRepository.save(department);
 
-        // 🪄 جادو: ڈیپارٹمنٹ کے اپڈیٹ ہونے کا ریکارڈ ڈائری میں لکھنا
-        auditLogService.logAction("UPDATE", "Department", updatedDepartment.getUuid(), "System_User");
+        // ✅ اپڈیٹ کا لاگ (صرف 3 پیرامیٹرز)
+        auditLogService.logAction("UPDATE", "Department", updatedDepartment.getUuid());
 
         return departmentMapper.toResponseDto(updatedDepartment);
     }
@@ -71,8 +71,8 @@ public class DepartmentServiceImpl implements DepartmentService {
         department.setIsDeleted(true);
         departmentRepository.save(department);
 
-        // 🪄 جادو: ڈیپارٹمنٹ کے ڈیلیٹ ہونے کا ریکارڈ ڈائری میں لکھنا
-        auditLogService.logAction("DELETE", "Department", uuid, "System_User");
+        // ✅ ڈیلیٹ کا لاگ (صرف 3 پیرامیٹرز)
+        auditLogService.logAction("DELETE", "Department", uuid);
 
         return uuid;
     }

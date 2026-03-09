@@ -29,7 +29,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final PositionRepository positionRepository;
     private final EmployeeMapper employeeMapper;
 
-    // 1. نیا ملازم بنانا
     @Override
     public EmployeeResponseDto createEmployee(CreateEmployeeDto dto) {
         Department department = departmentRepository.findByUuid(dto.departmentUuid())
@@ -46,20 +45,18 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee savedEmployee = employeeRepository.save(employee);
 
-        // 🪄 جادو: نیا ملازم بننے کا ریکارڈ ڈائری میں لکھنا
-        auditLogService.logAction("CREATE", "Employee", savedEmployee.getUuid(), "System_User");
+        // ✅ فکسڈ: اب صرف 3 پیرامیٹرز بھیج رہے ہیں
+        auditLogService.logAction("CREATE", "Employee", savedEmployee.getUuid());
 
         return employeeMapper.toResponseDto(savedEmployee);
     }
 
-    // 2. Pagination کے ساتھ سارے ملازمین دیکھنا
     @Override
     public Page<EmployeeResponseDto> getAllEmployees(Pageable pageable) {
         Page<Employee> employees = employeeRepository.findAll(pageable);
         return employees.map(employeeMapper::toResponseDto);
     }
 
-    // 3. کسی ایک ملازم کو ڈھونڈنا
     @Override
     public EmployeeResponseDto getEmployeeByUuid(String uuid) {
         Employee employee = employeeRepository.findByUuid(uuid)
@@ -67,7 +64,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeMapper.toResponseDto(employee);
     }
 
-    // 4. ملازم کا ڈیٹا اپڈیٹ کرنا
     @Override
     public EmployeeResponseDto updateEmployeeByUuid(String uuid, UpdateEmployeeDto dto) {
         Employee employee = employeeRepository.findByUuid(uuid)
@@ -86,28 +82,26 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee updatedEmployee = employeeRepository.save(employee);
 
-        // 🪄 جادو: ملازم کے اپڈیٹ ہونے کا ریکارڈ ڈائری میں لکھنا
-        auditLogService.logAction("UPDATE", "Employee", updatedEmployee.getUuid(), "System_User");
+        // ✅ فکسڈ: اپڈیٹ لاگ (صرف 3 پیرامیٹرز)
+        auditLogService.logAction("UPDATE", "Employee", updatedEmployee.getUuid());
 
         return employeeMapper.toResponseDto(updatedEmployee);
     }
 
-    // 5. ملازم کو ڈیلیٹ کرنا (Soft Delete)
     @Override
     public String deleteEmployeeByUuid(String uuid) {
         Employee employee = employeeRepository.findByUuid(uuid)
                 .orElseThrow(() -> new RuntimeException("Employee not found with UUID: " + uuid));
 
-        employee.setIsDeleted(true); // ٹیچر کے طریقے کے مطابق ہم ڈیٹا بیس سے اڑانے کے بجائے اسے ڈیلیٹ مارک کر رہے ہیں
+        employee.setIsDeleted(true);
         employeeRepository.save(employee);
 
-        // 🪄 جادو: ملازم کے ڈیلیٹ ہونے کا ریکارڈ ڈائری میں لکھنا
-        auditLogService.logAction("DELETE", "Employee", uuid, "System_User");
+        // ✅ فکسڈ: ڈیلیٹ لاگ (صرف 3 پیرامیٹرز)
+        auditLogService.logAction("DELETE", "Employee", uuid);
 
         return uuid;
     }
 
-    // 6. ملازم کو نام سے تلاش کرنا
     @Override
     public Page<EmployeeResponseDto> searchEmployeesByName(String name, Pageable pageable) {
         Page<Employee> employees = employeeRepository.findByNameContainingIgnoreCase(name, pageable);
