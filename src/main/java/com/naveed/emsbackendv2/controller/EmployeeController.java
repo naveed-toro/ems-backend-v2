@@ -51,4 +51,12 @@ public class EmployeeController {
     public ResponseEntity<String> deleteEmployeeByUuid(@PathVariable String uuid) {
         return ResponseEntity.ok(employeeService.deleteEmployeeByUuid(uuid));
     }
+
+    // 6. ملازم کو نام سے تلاش کرنا (Search by Name)
+    @GetMapping("/search")
+    public ResponseEntity<Page<EmployeeResponseDto>> searchEmployeesByName(
+            @RequestParam String name,
+            Pageable pageable) {
+        return ResponseEntity.ok(employeeService.searchEmployeesByName(name, pageable));
+    }
 }

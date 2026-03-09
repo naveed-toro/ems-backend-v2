@@ -92,4 +92,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeRepository.save(employee);
         return uuid;
     }
+
+    // 6. ملازم کو نام سے تلاش کرنا
+    @Override
+    public Page<EmployeeResponseDto> searchEmployeesByName(String name, Pageable pageable) {
+        Page<Employee> employees = employeeRepository.findByNameContainingIgnoreCase(name, pageable);
+        return employees.map(employeeMapper::toResponseDto);
+    }
 }

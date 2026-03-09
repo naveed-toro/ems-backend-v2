@@ -22,4 +22,7 @@ public interface EmployeeService {
 
     // 5. Delete (ملازم کو ڈیلیٹ کرنا)
     String deleteEmployeeByUuid(String uuid);
+
+    // 6. ملازم کو نام سے تلاش کرنا (Search by Name)
+    Page<EmployeeResponseDto> searchEmployeesByName(String name, Pageable pageable);
 }
