@@ -1,17 +1,25 @@
 package com.naveed.emsbackendv2.service;
 
 import com.naveed.emsbackendv2.model.dto.request.CreateEmployeeDto;
+import com.naveed.emsbackendv2.model.dto.request.UpdateEmployeeDto;
 import com.naveed.emsbackendv2.model.dto.response.EmployeeResponseDto;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface EmployeeService {
 
-    // 1. نیا ملازم بنانے کے لیے
+    // 1. Create (نیا ملازم بنانا)
     EmployeeResponseDto createEmployee(CreateEmployeeDto createEmployeeDto);
 
-    // 2. تمام ملازمین کی لسٹ دیکھنے کے لیے
-    List<EmployeeResponseDto> getAllEmployees();
+    // 2. Read All (تمام ملازمین کو Pagination کے ساتھ دیکھنا)
+    Page<EmployeeResponseDto> getAllEmployees(Pageable pageable);
 
-    // 3. کسی ایک خاص ملازم کو تلاش کرنے کے لیے
+    // 3. Read One (کسی ایک خاص ملازم کو تلاش کرنا)
     EmployeeResponseDto getEmployeeByUuid(String uuid);
+
+    // 4. Update (ملازم کا ڈیٹا تبدیل کرنا)
+    EmployeeResponseDto updateEmployeeByUuid(String uuid, UpdateEmployeeDto updateEmployeeDto);
+
+    // 5. Delete (ملازم کو ڈیلیٹ کرنا)
+    String deleteEmployeeByUuid(String uuid);
 }

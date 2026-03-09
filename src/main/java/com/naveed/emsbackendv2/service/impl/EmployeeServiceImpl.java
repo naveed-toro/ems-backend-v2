@@ -1,6 +1,7 @@
 package com.naveed.emsbackendv2.service.impl;
 
 import com.naveed.emsbackendv2.model.dto.request.CreateEmployeeDto;
+import com.naveed.emsbackendv2.model.dto.request.UpdateEmployeeDto;
 import com.naveed.emsbackendv2.model.dto.response.EmployeeResponseDto;
 import com.naveed.emsbackendv2.model.entities.Department;
 import com.naveed.emsbackendv2.model.entities.Employee;
@@ -11,61 +12,84 @@ import com.naveed.emsbackendv2.model.repository.EmployeeRepository;
 import com.naveed.emsbackendv2.model.repository.PositionRepository;
 import com.naveed.emsbackendv2.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
 
-    // ہمیں ان چاروں چیزوں کی ضرورت پڑے گی
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final PositionRepository positionRepository;
     private final EmployeeMapper employeeMapper;
 
+    // 1. نیا ملازم بنانا
     @Override
     public EmployeeResponseDto createEmployee(CreateEmployeeDto dto) {
-
-        // 1. پہلے چیک کریں کہ کیا ڈیپارٹمنٹ موجود ہے؟
         Department department = departmentRepository.findByUuid(dto.departmentUuid())
                 .orElseThrow(() -> new RuntimeException("Department not found with UUID: " + dto.departmentUuid()));
 
-        // 2. پھر چیک کریں کہ کیا پوزیشن موجود ہے؟
         Position position = positionRepository.findByUuid(dto.positionUuid())
                 .orElseThrow(() -> new RuntimeException("Position not found with UUID: " + dto.positionUuid()));
 
-        // 3. اگر دونوں مل جائیں، تو DTO کو Entity (ڈیٹا بیس والے ماڈل) میں بدلیں
         Employee employee = employeeMapper.toEntity(dto);
-
-        // 4. سیکیورٹی (UUID) اور ریلیشن شپس (Relationships) سیٹ کریں
         employee.setUuid(UUID.randomUUID().toString());
         employee.setIsDeleted(false);
         employee.setDepartment(department);
         employee.setPosition(position);
 
-        // 5. ڈیٹا بیس میں محفوظ کریں
         Employee savedEmployee = employeeRepository.save(employee);
-
-        // 6. واپس DTO بنا کر یوزر کو دکھائیں
         return employeeMapper.toResponseDto(savedEmployee);
     }
 
+    // 2. Pagination کے ساتھ سارے ملازمین دیکھنا
     @Override
-    public List<EmployeeResponseDto> getAllEmployees() {
-        return employeeRepository.findAll()
-                .stream()
-                .map(employeeMapper::toResponseDto)
-                .collect(Collectors.toList());
+    public Page<EmployeeResponseDto> getAllEmployees(Pageable pageable) {
+        Page<Employee> employees = employeeRepository.findAll(pageable);
+        return employees.map(employeeMapper::toResponseDto);
     }
 
+    // 3. کسی ایک ملازم کو ڈھونڈنا
     @Override
     public EmployeeResponseDto getEmployeeByUuid(String uuid) {
         Employee employee = employeeRepository.findByUuid(uuid)
                 .orElseThrow(() -> new RuntimeException("Employee not found with UUID: " + uuid));
         return employeeMapper.toResponseDto(employee);
+    }
+
+    // 4. ملازم کا ڈیٹا اپڈیٹ کرنا
+    @Override
+    public EmployeeResponseDto updateEmployeeByUuid(String uuid, UpdateEmployeeDto dto) {
+        Employee employee = employeeRepository.findByUuid(uuid)
+                .orElseThrow(() -> new RuntimeException("Employee not found with UUID: " + uuid));
+
+        Department department = departmentRepository.findByUuid(dto.departmentUuid())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+
+        Position position = positionRepository.findByUuid(dto.positionUuid())
+                .orElseThrow(() -> new RuntimeException("Position not found"));
+
+        employee.setName(dto.name());
+        employee.setEmail(dto.email());
+        employee.setDepartment(department);
+        employee.setPosition(position);
+
+        Employee updatedEmployee = employeeRepository.save(employee);
+        return employeeMapper.toResponseDto(updatedEmployee);
+    }
+
+    // 5. ملازم کو ڈیلیٹ کرنا (Soft Delete)
+    @Override
+    public String deleteEmployeeByUuid(String uuid) {
+        Employee employee = employeeRepository.findByUuid(uuid)
+                .orElseThrow(() -> new RuntimeException("Employee not found with UUID: " + uuid));
+
+        employee.setIsDeleted(true); // ٹیچر کے طریقے کے مطابق ہم ڈیٹا بیس سے اڑانے کے بجائے اسے ڈیلیٹ مارک کر رہے ہیں
+        employeeRepository.save(employee);
+        return uuid;
     }
 }
