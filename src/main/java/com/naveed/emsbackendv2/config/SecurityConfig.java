@@ -6,7 +6,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
-// یہ اینوٹیشنز بتاتی ہیں کہ یہ کلاس پروجیکٹ کی سیکیورٹی سنبھالے گی
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -14,11 +13,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // پوسٹ مین سے ڈیٹا بھیجنے کے لیے CSRF کو بند کرنا ضروری ہے
+                // پوسٹ مین سے ڈیٹا بھیجنے کے لیے CSRF کو بند رکھا ہے
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // یہ لائن عارضی طور پر ہمارے تمام APIs کے دروازے کھول رہی ہے
-                        .anyRequest().permitAll()
+                        // 🔒 جادو کی لائن: اب کوئی بھی ریکویسٹ بغیر لاگ ان (Authentication) کے پاس نہیں ہوگی
+                        .anyRequest().authenticated()
+                )
+                // اسپرنگ بوٹ کو بتایا جا رہا ہے کہ چابی (JWT Token) Keycloak سے چیک کرنی ہے
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> {})
                 );
 
         return http.build();
