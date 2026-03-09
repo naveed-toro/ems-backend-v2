@@ -1,7 +1,7 @@
 package com.naveed.emsbackendv2.controller;
 
-import com.naveed.emsbackendv2.model.dto.CreateDepartmentDto;
-import com.naveed.emsbackendv2.model.dto.DepartmentResponseDto;
+import com.naveed.emsbackendv2.model.dto.request.CreateDepartmentDto;
+import com.naveed.emsbackendv2.model.dto.response.DepartmentResponseDto;
 import com.naveed.emsbackendv2.service.DepartmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
 package com.naveed.emsbackendv2.service.impl;
 
-import com.naveed.emsbackendv2.model.dto.CreateDepartmentDto;
-import com.naveed.emsbackendv2.model.dto.DepartmentResponseDto;
+import com.naveed.emsbackendv2.model.dto.request.CreateDepartmentDto;
+import com.naveed.emsbackendv2.model.dto.response.DepartmentResponseDto;
 import com.naveed.emsbackendv2.model.entities.Department;
 import com.naveed.emsbackendv2.model.mapper.DepartmentMapper;
 import com.naveed.emsbackendv2.model.repository.DepartmentRepository;

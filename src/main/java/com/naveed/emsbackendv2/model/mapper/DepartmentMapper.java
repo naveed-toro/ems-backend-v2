@@ -1,7 +1,7 @@
 package com.naveed.emsbackendv2.model.mapper;
 
-import com.naveed.emsbackendv2.model.dto.CreateDepartmentDto;
-import com.naveed.emsbackendv2.model.dto.DepartmentResponseDto;
+import com.naveed.emsbackendv2.model.dto.request.CreateDepartmentDto;
+import com.naveed.emsbackendv2.model.dto.response.DepartmentResponseDto;
 import com.naveed.emsbackendv2.model.entities.Department;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

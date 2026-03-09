@@ -1,7 +1,7 @@
 package com.naveed.emsbackendv2.service;
 
-import com.naveed.emsbackendv2.model.dto.CreateEmployeeDto;
-import com.naveed.emsbackendv2.model.dto.EmployeeResponseDto;
+import com.naveed.emsbackendv2.model.dto.request.CreateEmployeeDto;
+import com.naveed.emsbackendv2.model.dto.response.EmployeeResponseDto;
 import java.util.List;
 
 public interface EmployeeService {

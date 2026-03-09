@@ -1,7 +1,7 @@
 package com.naveed.emsbackendv2.controller;
 
-import com.naveed.emsbackendv2.model.dto.CreatePositionDto;
-import com.naveed.emsbackendv2.model.dto.PositionResponseDto;
+import com.naveed.emsbackendv2.model.dto.request.CreatePositionDto;
+import com.naveed.emsbackendv2.model.dto.response.PositionResponseDto;
 import com.naveed.emsbackendv2.service.PositionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

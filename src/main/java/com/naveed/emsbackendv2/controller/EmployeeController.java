@@ -1,7 +1,7 @@
 package com.naveed.emsbackendv2.controller;
 
-import com.naveed.emsbackendv2.model.dto.CreateEmployeeDto;
-import com.naveed.emsbackendv2.model.dto.EmployeeResponseDto;
+import com.naveed.emsbackendv2.model.dto.request.CreateEmployeeDto;
+import com.naveed.emsbackendv2.model.dto.response.EmployeeResponseDto;
 import com.naveed.emsbackendv2.service.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
 package com.naveed.emsbackendv2.model.mapper;
 
-import com.naveed.emsbackendv2.model.dto.CreatePositionDto;
-import com.naveed.emsbackendv2.model.dto.PositionResponseDto;
+import com.naveed.emsbackendv2.model.dto.request.CreatePositionDto;
+import com.naveed.emsbackendv2.model.dto.response.PositionResponseDto;
 import com.naveed.emsbackendv2.model.entities.Position;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
