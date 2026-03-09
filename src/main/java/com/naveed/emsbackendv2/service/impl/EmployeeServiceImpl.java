@@ -10,6 +10,7 @@ import com.naveed.emsbackendv2.model.mapper.EmployeeMapper;
 import com.naveed.emsbackendv2.model.repository.DepartmentRepository;
 import com.naveed.emsbackendv2.model.repository.EmployeeRepository;
 import com.naveed.emsbackendv2.model.repository.PositionRepository;
+import com.naveed.emsbackendv2.service.AuditLogService;
 import com.naveed.emsbackendv2.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import java.util.UUID;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final AuditLogService auditLogService;
     private final DepartmentRepository departmentRepository;
     private final PositionRepository positionRepository;
     private final EmployeeMapper employeeMapper;
@@ -43,6 +45,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setPosition(position);
 
         Employee savedEmployee = employeeRepository.save(employee);
+
+        // 🪄 جادو: نیا ملازم بننے کا ریکارڈ ڈائری میں لکھنا
+        auditLogService.logAction("CREATE", "Employee", savedEmployee.getUuid(), "System_User");
+
         return employeeMapper.toResponseDto(savedEmployee);
     }
 
@@ -79,6 +85,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setPosition(position);
 
         Employee updatedEmployee = employeeRepository.save(employee);
+
+        // 🪄 جادو: ملازم کے اپڈیٹ ہونے کا ریکارڈ ڈائری میں لکھنا
+        auditLogService.logAction("UPDATE", "Employee", updatedEmployee.getUuid(), "System_User");
+
         return employeeMapper.toResponseDto(updatedEmployee);
     }
 
@@ -90,6 +100,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         employee.setIsDeleted(true); // ٹیچر کے طریقے کے مطابق ہم ڈیٹا بیس سے اڑانے کے بجائے اسے ڈیلیٹ مارک کر رہے ہیں
         employeeRepository.save(employee);
+
+        // 🪄 جادو: ملازم کے ڈیلیٹ ہونے کا ریکارڈ ڈائری میں لکھنا
+        auditLogService.logAction("DELETE", "Employee", uuid, "System_User");
+
         return uuid;
     }
 
