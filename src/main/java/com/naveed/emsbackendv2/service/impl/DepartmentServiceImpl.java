@@ -1,58 +1,71 @@
 package com.naveed.emsbackendv2.service.impl;
 
 import com.naveed.emsbackendv2.model.dto.request.CreateDepartmentDto;
+import com.naveed.emsbackendv2.model.dto.request.UpdateDepartmentDto;
 import com.naveed.emsbackendv2.model.dto.response.DepartmentResponseDto;
 import com.naveed.emsbackendv2.model.entities.Department;
 import com.naveed.emsbackendv2.model.mapper.DepartmentMapper;
 import com.naveed.emsbackendv2.model.repository.DepartmentRepository;
 import com.naveed.emsbackendv2.service.DepartmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-// یہ اینوٹیشن اسپرنگ کو بتاتی ہے کہ یہ ہماری مین بزنس لاجک کی کلاس ہے
 @Service
 @RequiredArgsConstructor
 public class DepartmentServiceImpl implements DepartmentService {
 
-    // Dependency Injection (ریپازٹری اور میپر کو یہاں بلایا گیا ہے)
     private final DepartmentRepository departmentRepository;
     private final DepartmentMapper departmentMapper;
 
     @Override
-    public DepartmentResponseDto createDepartment(CreateDepartmentDto createDepartmentDto) {
-        // 1. DTO کو Entity میں تبدیل کریں (MapStruct میپر کی مدد سے)
-        Department department = departmentMapper.toEntity(createDepartmentDto);
-
-        // 2. سیکیورٹی کے لیے نیا منفرد UUID خود جنریٹ کریں
+    public DepartmentResponseDto createDepartment(CreateDepartmentDto dto) {
+        Department department = departmentMapper.toEntity(dto);
         department.setUuid(UUID.randomUUID().toString());
-        department.setIsDeleted(false); // شروع میں ڈیلیٹ اسٹیٹس false ہوگا
-
-        // 3. ڈیٹا بیس میں محفوظ کریں (Repository کی مدد سے)
+        department.setIsDeleted(false);
         Department savedDepartment = departmentRepository.save(department);
-
-        // 4. واپس یوزر کو دکھانے کے لیے Entity کو ResponseDTO میں بدلیں
         return departmentMapper.toResponseDto(savedDepartment);
     }
 
     @Override
-    public List<DepartmentResponseDto> getAllDepartments() {
-        // ڈیٹا بیس سے تمام ڈیپارٹمنٹس نکالیں اور انہیں DTOs کی لسٹ میں بدل کر بھیج دیں
-        return departmentRepository.findAll()
-                .stream()
-                .map(departmentMapper::toResponseDto)
-                .collect(Collectors.toList());
+    public Page<DepartmentResponseDto> getAllDepartments(Pageable pageable) {
+        return departmentRepository.findAll(pageable)
+                .map(departmentMapper::toResponseDto);
     }
 
     @Override
     public DepartmentResponseDto getDepartmentByUuid(String uuid) {
-        // UUID کے ذریعے ڈیپارٹمنٹ تلاش کریں، اگر نہ ملے تو ایرر دیں
+        Department department = departmentRepository.findByUuid(uuid)
+                .orElseThrow(() -> new RuntimeException("Department not found with UUID: " + uuid));
+        return departmentMapper.toResponseDto(department);
+    }
+
+    @Override
+    public DepartmentResponseDto updateDepartmentByUuid(String uuid, UpdateDepartmentDto dto) {
         Department department = departmentRepository.findByUuid(uuid)
                 .orElseThrow(() -> new RuntimeException("Department not found with UUID: " + uuid));
 
-        return departmentMapper.toResponseDto(department);
+        department.setName(dto.name());
+        Department updatedDepartment = departmentRepository.save(department);
+        return departmentMapper.toResponseDto(updatedDepartment);
+    }
+
+    @Override
+    public String deleteDepartmentByUuid(String uuid) {
+        Department department = departmentRepository.findByUuid(uuid)
+                .orElseThrow(() -> new RuntimeException("Department not found with UUID: " + uuid));
+
+        department.setIsDeleted(true);
+        departmentRepository.save(department);
+        return uuid;
+    }
+
+    @Override
+    public Page<DepartmentResponseDto> searchDepartmentsByName(String name, Pageable pageable) {
+        return departmentRepository.findByNameContainingIgnoreCase(name, pageable)
+                .map(departmentMapper::toResponseDto);
     }
 }
