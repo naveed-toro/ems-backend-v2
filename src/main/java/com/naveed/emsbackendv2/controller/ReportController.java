@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -18,8 +19,13 @@ public class ReportController {
 
     // ============== پہلا API: CSV (Excel) ڈاؤن لوڈ کے لیے ==============
     @GetMapping("/employees/csv")
-    public ResponseEntity<byte[]> downloadEmployeeCsv() {
-        byte[] csvData = reportService.generateEmployeeCsvReport();
+    public ResponseEntity<byte[]> downloadEmployeeCsv(
+            @RequestParam(required = false) String departmentUuid,
+            @RequestParam(required = false) String positionUuid,
+            @RequestParam(required = false) String status) {
+
+        // کلائنٹ سے آنے والے فلٹرز سروس کو بھیجیں
+        byte[] csvData = reportService.generateEmployeeCsvReport(departmentUuid, positionUuid, status);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=employees_report.csv");
@@ -32,16 +38,18 @@ public class ReportController {
 
     // ============== دوسرا API: PDF ڈاؤن لوڈ کے لیے ==============
     @GetMapping("/employees/pdf")
-    public ResponseEntity<byte[]> downloadEmployeePdf() {
-        // سروس سے PDF فائل کا ڈیٹا منگوائیں
-        byte[] pdfData = reportService.generateEmployeePdfReport();
+    public ResponseEntity<byte[]> downloadEmployeePdf(
+            @RequestParam(required = false) String departmentUuid,
+            @RequestParam(required = false) String positionUuid,
+            @RequestParam(required = false) String status) {
 
-        // براؤزر کو بتائیں کہ یہ ایک PDF فائل ہے
+        // کلائنٹ سے آنے والے فلٹرز سروس کو بھیجیں
+        byte[] pdfData = reportService.generateEmployeePdfReport(departmentUuid, positionUuid, status);
+
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=employees_report.pdf");
         headers.setContentType(MediaType.APPLICATION_PDF);
 
-        // فائل یوزر کو بھیج دیں
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(pdfData);

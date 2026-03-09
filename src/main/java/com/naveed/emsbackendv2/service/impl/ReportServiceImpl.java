@@ -19,15 +19,19 @@ public class ReportServiceImpl implements ReportService {
 
     private final EmployeeRepository employeeRepository;
 
-    // ============== پہلا فنکشن: CSV فائل بنانے کے لیے ==============
+    // ============== پہلا فنکشن: CSV فائل (فلٹرز کے ساتھ) ==============
     @Override
     @Transactional(readOnly = true)
-    public byte[] generateEmployeeCsvReport() {
-        List<Employee> employees = employeeRepository.findAll();
+    public byte[] generateEmployeeCsvReport(String departmentUuid, String positionUuid, String status) {
+
+        // جادو یہاں ہے: اب ہم سارا ڈیٹا لانے کے بجائے فلٹر کے حساب سے ڈیٹا لا رہے ہیں
+        List<Employee> employees = employeeRepository.findByFilters(departmentUuid, positionUuid, status);
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              PrintWriter writer = new PrintWriter(out);
-             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("ID", "Name", "Email", "Department", "Position"))) {
+             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.builder()
+                     .setHeader("ID", "Name", "Email", "Department", "Position")
+                     .build())) {
 
             for (Employee emp : employees) {
                 String deptName = (emp.getDepartment() != null) ? emp.getDepartment().getName() : "N/A";
@@ -50,36 +54,33 @@ public class ReportServiceImpl implements ReportService {
         }
     }
 
-    // ============== دوسرا اور نیا فنکشن: PDF فائل بنانے کے لیے ==============
+    // ============== دوسرا فنکشن: PDF فائل (فلٹرز کے ساتھ) ==============
     @Override
     @Transactional(readOnly = true)
-    public byte[] generateEmployeePdfReport() {
-        List<Employee> employees = employeeRepository.findAll();
+    public byte[] generateEmployeePdfReport(String departmentUuid, String positionUuid, String status) {
+
+        // جادو یہاں ہے: اب ہم سارا ڈیٹا لانے کے بجائے فلٹر کے حساب سے ڈیٹا لا رہے ہیں
+        List<Employee> employees = employeeRepository.findByFilters(departmentUuid, positionUuid, status);
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            // 1. ایک نیا PDF ڈاکومنٹ بنائیں
             com.lowagie.text.Document document = new com.lowagie.text.Document(com.lowagie.text.PageSize.A4);
             com.lowagie.text.pdf.PdfWriter.getInstance(document, out);
             document.open();
 
-            // 2. رپورٹ کا ٹائٹل (Heading)
             com.lowagie.text.Font titleFont = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA_BOLD, 18);
             com.lowagie.text.Paragraph title = new com.lowagie.text.Paragraph("Employee Report", titleFont);
             title.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
             document.add(title);
-            document.add(new com.lowagie.text.Paragraph(" ")); // ایک خالی لائن
+            document.add(new com.lowagie.text.Paragraph(" "));
 
-            // 3. ٹیبل بنانا (4 کالم: Name, Email, Department, Position)
             com.lowagie.text.pdf.PdfPTable table = new com.lowagie.text.pdf.PdfPTable(4);
             table.setWidthPercentage(100);
 
-            // ٹیبل کے ہیڈرز
             table.addCell("Name");
             table.addCell("Email");
             table.addCell("Department");
             table.addCell("Position");
 
-            // 4. ڈیٹا بیس سے ملازمین کا ڈیٹا ٹیبل میں ڈالنا
             for (Employee emp : employees) {
                 table.addCell(emp.getName());
                 table.addCell(emp.getEmail());
@@ -87,7 +88,6 @@ public class ReportServiceImpl implements ReportService {
                 table.addCell(emp.getPosition() != null ? emp.getPosition().getName() : "N/A");
             }
 
-            // 5. ٹیبل کو PDF میں شامل کر کے فائل بند کر دیں
             document.add(table);
             document.close();
 
